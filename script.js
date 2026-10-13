@@ -37,7 +37,28 @@ async function send(){
   addMessage("user",text); current.push({role:"user",text}); $("prompt").value=""; resize();
   $("typing").classList.remove("hidden");
   await new Promise(r=>setTimeout(r,700));
-  const answer=fakeAnswer(text);
+  const response = await fetch(
+  "https://studyai.editorhindu96.workers.dev",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      question: text,
+      subject: "",
+      class: $("classSelect").value
+    })
+  }
+);
+
+const data = await response.json();
+
+if (!response.ok) {
+  throw new Error(data.error || "AI request failed");
+}
+
+const answer = data.answer;
   $("typing").classList.add("hidden"); addMessage("assistant",answer); current.push({role:"assistant",text:answer});
   chats.push({title:text.slice(0,48),messages:current}); save();
   selectedImage=null; $("imagePreview").classList.add("hidden");
